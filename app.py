@@ -33,7 +33,7 @@ with st.container():
     st.subheader("⚙️ Configuration")
 
     st.session_state.api_key = st.text_input("🔑 Enter your News API Key", type="password", placeholder="Paste your NewsAPI key here")
-    st.session_state.niche = st.text_input("🧠 Enter a News Topic", value="crypto", placeholder="e.g. crypto, tech, politics")
+    st.session_state.niche = st.text_input("🧠 Enter a News Topic", placeholder="e.g. crypto, tech, politics")
     st.session_state.page_size = st.slider("📰 Number of News Articles", 1, 10, 5)
 
     st.session_state.cdp_url = "http://localhost:9222"

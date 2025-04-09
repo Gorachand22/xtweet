@@ -8,8 +8,9 @@ import streamlit as st
 
 async def post_tweet(news, cdp_url):
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.connect_over_cdp(cdp_url, timeout=60000)
+        
         try:
+            browser = await playwright.chromium.connect_over_cdp(cdp_url, timeout=60000)
             context = browser.contexts[0]
             page = context.pages[0]
 

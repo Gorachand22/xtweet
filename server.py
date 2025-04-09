@@ -6,21 +6,17 @@ from db import *
 import time
 import streamlit as st
 
-async def post_tweet(news, cdp_url):
+async def post_tweet(news):
     async with async_playwright() as playwright:
-        
         try:
-            browser = await playwright.chromium.connect_over_cdp(cdp_url, timeout=60000)
-            context = browser.contexts[0]
-            page = context.pages[0]
+            browser = await playwright.chromium.launch(headless=False)  # Launch normal browser
+            context = await browser.new_context()
+            page = await context.new_page()
 
-            st.toast(f"Connected to page: {page.url}")
-            if "x.com/home" not in page.url:
-                # open in new tab
-                new_page = await page.context.new_page()
-                await new_page.goto("https://x.com/home")
-                await asyncio.sleep(15)
-                page = new_page  # Use the new page from here on
+            await page.goto("https://x.com/home")
+            st.toast(f"Opened page: {page.url}")
+            await asyncio.sleep(15)
+
             try:
                 editor = await page.query_selector('div[class="DraftEditor-editorContainer"]')
             except:
@@ -50,7 +46,7 @@ async def post_tweet(news, cdp_url):
 
                 post_button = await page.query_selector('button[data-testid="tweetButtonInline"]')
                 if post_button and not await post_button.is_disabled():
-                    await post_button.click( timeout=5000)
+                    await post_button.click(timeout=5000)
                     st.toast("✅ Tweet posted successfully!")
                 else:
                     st.toast("❌ Tweet button not enabled.")
@@ -62,11 +58,10 @@ async def post_tweet(news, cdp_url):
             await browser.close()
 
 
-def run_playwright(news=None, cdp_url="http://localhost:9222"):
+def run_playwright(news=None):
     if sys.platform.startswith('win'):
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())  # ✅ Fix for Windows
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(post_tweet(news=news, cdp_url=cdp_url))
-
+    loop.run_until_complete(post_tweet(news=news))
